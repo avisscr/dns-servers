@@ -1,0 +1,33 @@
+name: Update Resolvers.txt
+
+on:
+  schedule:
+    - cron: '0 */4 * * *' # Runs every 4 hours
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Run dnsvalidator and commit resolvers.txt
+      env:
+        DOCKER_IMAGE: wfnintr/dnsvalidator
+      run: |
+        # Pull the Docker image
+        docker pull $DOCKER_IMAGE
+
+        # Run dnsvalidator and generate resolvers.txt
+        docker run --rm -v $PWD:/app $DOCKER_IMAGE dnsvalidator -tL https://public-dns.info/nameservers.txt -threads 20 -o /app/resolvers.txt
+
+        # Check if dnsvalidator was successful (adjust this condition as needed)
+        if [ -s resolvers.txt ]; then
+          # Commit the changes
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add resolvers.txt
+          git commit -m "Update resolvers.txt"
+          git push
+        fi
