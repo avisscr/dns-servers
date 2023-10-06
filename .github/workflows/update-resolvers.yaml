@@ -22,13 +22,11 @@ jobs:
 
         # Run dnsvalidator and generate resolvers.txt
         docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL https://public-dns.info/nameservers.txt -threads 50 -o /app/resolvers.txt -timeout 300
-
-        # Check if dnsvalidator was successful (adjust this condition as needed)
-        if [ -s resolvers.txt ]; then
-          # Commit the changes
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add resolvers.txt
-          git commit -m "Update resolvers.txt"
-          git push
-        fi
+   
+    - name: Commit and push changes using git-auto-commit-action
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "resolvers.txt updated."
+        commit_options: '--no-verify'  # Optional: This skips pre-commit and commit-msg hooks
+        file_pattern: resolvers.txt
+        branch: main  # Replace with your default branch if it's not "main"
