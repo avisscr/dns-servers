@@ -1,5 +1,3 @@
-name: Update Resolvers.txt
-
 on:
   schedule:
     - cron: '0 */4 * * *' # Runs every 4 hours
@@ -11,7 +9,7 @@ jobs:
 
     steps:
     - name: Check out the code
-      uses: actions/checkout@v2
+      uses: actions/checkout@latest
 
     - name: Run dnsvalidator and commit resolvers.txt
       env:
