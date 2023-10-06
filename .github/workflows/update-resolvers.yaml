@@ -21,7 +21,7 @@ jobs:
         docker pull $DOCKER_IMAGE
 
         # Run dnsvalidator and generate resolvers.txt
-        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL https://public-dns.info/nameservers.txt -threads 20 -o /app/resolvers.txt
+        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL https://public-dns.info/nameservers.txt -threads 50 -o /app/resolvers.txt
 
         # Check if dnsvalidator was successful (adjust this condition as needed)
         if [ -s resolvers.txt ]; then
