@@ -26,7 +26,7 @@ jobs:
         docker pull $DOCKER_IMAGE
 
         # Run dnsvalidator and generate resolvers.txt
-        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL ./nameservers_1000.txt -threads 50 -o /app/resolvers.txt -timeout 300
+        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL /app/nameservers_1000.txt -threads 50 -o /app/resolvers.txt -timeout 300
    
     - name: Commit and push changes using git-auto-commit-action
       uses: stefanzweifel/git-auto-commit-action@v4
