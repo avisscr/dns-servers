@@ -13,6 +13,11 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
+    - name: Download first 1000 entries from nameservers.txt
+      run: |
+        curl -s https://public-dns.info/nameservers.txt | head -n 1000 > nameservers_1000.txt
+      continue-on-error: true # Continue even if there are fewer than 1000 entries
+
     - name: Run dnsvalidator and commit resolvers.txt
       env:
         DOCKER_IMAGE: wfnintr/dnsvalidator
@@ -21,7 +26,7 @@ jobs:
         docker pull $DOCKER_IMAGE
 
         # Run dnsvalidator and generate resolvers.txt
-        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL https://public-dns.info/nameservers.txt -threads 50 -o /app/resolvers.txt -timeout 300
+        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL ./nameservers_1000.txt -threads 50 -o /app/resolvers.txt -timeout 300
    
     - name: Commit and push changes using git-auto-commit-action
       uses: stefanzweifel/git-auto-commit-action@v4
