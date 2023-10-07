@@ -10,28 +10,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v2
+      - name: Check out the code
+        uses: actions/checkout@v2
 
-    - name: Download first 1000 entries from nameservers.txt
-      run: |
-        curl -s https://public-dns.info/nameservers.txt | head -n 1000 > nameservers_1000.txt
-      continue-on-error: true # Continue even if there are fewer than 1000 entries
+      - name: Download first 1000 entries from nameservers.txt
+        run: |
+          curl -s https://public-dns.info/nameservers.txt | head -n 1000 > nameservers_1000.txt
+        continue-on-error: true # Continue even if there are fewer than 1000 entries
 
-    - name: Run dnsvalidator and commit resolvers.txt
-      env:
-        DOCKER_IMAGE: wfnintr/dnsvalidator
-      run: |
-        # Pull the Docker image
-        docker pull $DOCKER_IMAGE
+      - name: Run dnsvalidator and commit resolvers.txt
+        env:
+          DOCKER_IMAGE: wfnintr/dnsvalidator
+        run: |
+          # Pull the Docker image
+          docker pull $DOCKER_IMAGE
 
-        # Run dnsvalidator and generate resolvers.txt
-        docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL /app/nameservers_1000.txt -threads 50 -o /app/resolvers.txt -timeout 300
-   
-    - name: Commit and push changes using git-auto-commit-action
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "resolvers.txt updated."
-        commit_options: '--no-verify'  # Optional: This skips pre-commit and commit-msg hooks
-        file_pattern: resolvers.txt
-        branch: main  # Replace with your default branch if it's not "main"
+          # Run dnsvalidator and generate resolvers.txt
+          docker run --rm -v $PWD:/app $DOCKER_IMAGE -tL /app/nameservers_1000.txt -threads 50 -o /app/resolvers.txt -timeout 300
+
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add --all
+          git commit -m "resolvers.txt updated :robot:"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          branch: ${{ github.ref }}
